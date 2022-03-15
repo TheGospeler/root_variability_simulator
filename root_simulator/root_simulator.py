@@ -1,25 +1,48 @@
-"""Importing the BERT module."""
-#import BERT
+"""Importing the pygimli and pybert module."""
+import pygimli as pg
+import pybert as pb
 
 
-class Root_Simulator():
-	"""The Root simulator provides an extensive functionalities of the BERT module.
+class RootSimulator():
+	"""The Root simulator utilizes the forward and inversion simulations of the BERT module for Root Depth analysis.
 
-	The functionality of this software requires a 2D array including the depth and resitivity in the 0 and 1 position.
-	Specifically, this module is conditioned for Root Simulations.
+	The functionality of this software requires a 2D array. Import the data using the read_res_data module.
+	The data utilized for the project is the SuperSting AGI electrical resistivity meter. To use other data format see the BERT 
+	documentation.
 
 	----------------------------------
-	Will provide more update soon.
-	----------------------------------
+	Dependables: numpy, matplolib, pygimli, pybert
+	Parameters
+	----------
+	data - Processed SuperSting file containing the electrodes configuration and the estimated apparent resistivity.
 
+	Usage:
+	import pygimli, pybert
+
+	RT = RootSimulator(data).
 	"""
 
-	def __init__(self, arr):
+	def __init__(self, data):
 		"""Read in the array, arr.
 
 		The parameter, arr is a 2D array...
 		"""
-		self.arg = arg
+		self.data = data
+
+
+	def resistivity_plot(self):
+		"""Plot the resistivity range across number of stations measured in 1D.
+
+		resistivity_plot provides a visulization of the general resistivity variability in the field measured."""
+		pass
+
+
+	def inversion2D(self):
+		pass
+
+
+	def forward_model(self):
+		pass
 
 
 	def animate_simulation(self):
@@ -30,7 +53,8 @@ class Root_Simulator():
 
 		Dependence: 
 		Parameters:
-		...........
+		-----------
+
 
 		"""
-		return 4
+		pass
