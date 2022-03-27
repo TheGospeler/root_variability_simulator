@@ -1,3 +1,4 @@
+# %load read_res_data.py
 """importing dependency modules."""
 import os
 import numpy as np
@@ -5,7 +6,7 @@ import pybert as pb
 import pygimli as pg
 
 
-def supersting_processing(file, col=[-4, -1], row=1, savefile=False):
+def supersting_processing(file, col=(-4, -1), row=1, save_file=False):
     """Read in the supersting file and extract the measured res. values and electrodes arrangement.
 
     The Supersting file has a standard output format. The total number of records measured is
@@ -23,7 +24,7 @@ def supersting_processing(file, col=[-4, -1], row=1, savefile=False):
         row- The row shouldn't change except in case of special cases.
         col- The default used is hundreds of points. if the record is not up to hundred,
         change to [-3, -1], if total points are up to a thousand, change to [-5:-1].
-        savefile- boolean. To save the file, change the parameter to True to save as .txt.
+        save_file- boolean. To save the file, change the parameter to True to save as .txt.
     """
     if not os.path.isfile(file):
         raise ValueError("{} does not exist, make sure file is in the same directory".format(file))
@@ -33,7 +34,7 @@ def supersting_processing(file, col=[-4, -1], row=1, savefile=False):
 
     # Get the number of records automatically
     for char in range(5, 1, -1):
-        last_line= supersting_file[1][-char:-1] # The number of records may not exceed 10,000s
+        last_line = supersting_file[1][-char:-1]  # The number of records may not exceed 10,000s
         if type(int(last_line)) == int:
             check_col = int(last_line)
             break
@@ -45,12 +46,12 @@ def supersting_processing(file, col=[-4, -1], row=1, savefile=False):
 
     # overrides if the user enters a wrong record position that might break the code
     if check_col > record:
-        record  = check_col
+        record = check_col
 
     # remove the header
     supersting = supersting_file[3:]
 
-    # The position of the resistance, resistivity and the ABMN(xyz for each):
+    # The position of the resistance, resistivity and the ABMN (xyz for each):
     relevant_col = [4, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
     # create the numpy array size to accommodate the resistance, resistivity and ABMN files
@@ -62,8 +63,8 @@ def supersting_processing(file, col=[-4, -1], row=1, savefile=False):
         for j in range(len(relevant_col)):
             data[i][j] = line[relevant_col[j]]
 
-    if savefile:
-        np.savetxt("Resistivity.dat", data, header='R rhoa A(xyz) B(xyz) M(xyz) N(xyz)')
+    if save_file:
+        np.savetxt(f"{data[:-4]}_res.dat", data, header='R rhoa A(xyz) B(xyz) M(xyz) N(xyz)')
 
     return data
 
@@ -75,7 +76,7 @@ def standardized_bert(file_name, precision=2, save_file=False):
     Parameters: file_name- The supersting input file.
                 precision- default is set to 2. It is used to create the pseudo data used
                 for inversion.
-                savefile- boolean. To save the file, change the parameter to True to save
+                save_file- boolean. To save the file, change the parameter to True to save
                 as .txt.
 
     The output consist of the topography and the ABMN electrode position with the apparent
@@ -139,6 +140,6 @@ def standardized_bert(file_name, precision=2, save_file=False):
 
     # save the file in .dat format and can be visualized using notepad or any text application.
     if save_file:
-        pb.exportData(data, 'supersting.dat')
+        pb.exportData(data, f'{data[:-4]}.dat')
 
     return data
