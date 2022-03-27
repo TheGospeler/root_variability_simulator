@@ -5,35 +5,47 @@ import pybert as pb
 import pygimli as pg
 
 
-def supersting_processing(file, row=1, col=[-4, -1], savefile=False):
-    """Read in the supersting file and extract the measured resistivity values and electrodes arrangement.
+def supersting_processing(file, col=[-4, -1], row=1, savefile=False):
+    """Read in the supersting file and extract the measured res. values and electrodes arrangement.
 
-    The Supersting file has a standard output format. The total number of records measured is situated at
-    the end of the second row.
+    The Supersting file has a standard output format. The total number of records measured is
+    situated at the end of the second row.
 
-    The supersting_processing function returns the following in an array: resistance, apparent resistivity,
-    current electrodes(xyz), and potential electrodes(xyz), from the supersting file.
+    The supersting_processing function returns the following in an array: resistance, apparent
+    resistivity, current electrodes(xyz), and potential electrodes(xyz), from the supersting file.
 
-    Depending on the information you need, you might just need to slightly adjust some parameters to get
-    what you need. See the SuperSting Manual for column positions of information needed.
+    Depending on the information you need, you might just need to slightly adjust some parameters
+    to get what you need. See the SuperSting Manual for column positions of information needed.
 
     Dependence: os, numpy
-    Parameters: file- The name of the file should be in the current directory or the path should be added.
-                row- The row shouldn't change except in case of special cases.
-                col- The default used is hundreds of points. if the record is not up to hundred,
-                change to [-3, -1], if total points are up to a thousand, change to [-5:-1].
-                savefile- boolean. To save the file, change the parameter to True to save as .txt.
+    Parameters: file- The name of the file should be in the current directory or the path should be
+    added.
+        row- The row shouldn't change except in case of special cases.
+        col- The default used is hundreds of points. if the record is not up to hundred,
+        change to [-3, -1], if total points are up to a thousand, change to [-5:-1].
+        savefile- boolean. To save the file, change the parameter to True to save as .txt.
     """
     if not os.path.isfile(file):
         raise ValueError("{} does not exist, make sure file is in the same directory".format(file))
 
-    with open(file, 'r') as f:
-        supersting_file = f.readlines()
+    with open(file, 'r') as fil:
+        supersting_file = fil.readlines()
+
+    # Get the number of records automatically
+    for char in range(5, 1, -1):
+        last_line= supersting_file[1][-char:-1] # The number of records may not exceed 10,000s
+        if type(int(last_line)) == int:
+            check_col = int(last_line)
+            break
 
     if type(int(supersting_file[row][col[0]:col[1]])) not in [int]:
         raise ValueError('Please make sure you enter the correct col position')
 
     record = int(supersting_file[row][col[0]:col[1]])
+
+    # overrides if the user enters a wrong record position that might break the code
+    if check_col > record:
+        record  = check_col
 
     # remove the header
     supersting = supersting_file[3:]
@@ -50,47 +62,52 @@ def supersting_processing(file, row=1, col=[-4, -1], savefile=False):
         for j in range(len(relevant_col)):
             data[i][j] = line[relevant_col[j]]
 
-    if savefile == True:
+    if savefile:
         np.savetxt("Resistivity.dat", data, header='R rhoa A(xyz) B(xyz) M(xyz) N(xyz)')
 
     return data
 
 
-def standardized_4BERT(file_name, precision=2, save_file=False):
-    """The Standardized_4Bert function returns the required data needed for the BERT model.
+def standardized_bert(file_name, precision=2, save_file=False):
+    """The Standardized_bert function returns the required data needed for the BERT model.
 
     Dependencies: numpy, pybert, pygimli
     Parameters: file_name- The supersting input file.
-                precision- default is set to 2. It is used to create the pseudo data used for inversion.
-                savefile- boolean. To save the file, change the parameter to True to save as .txt.
+                precision- default is set to 2. It is used to create the pseudo data used
+                for inversion.
+                savefile- boolean. To save the file, change the parameter to True to save
+                as .txt.
 
-    The output consist of the topography and the ABMN electrode position with the apparent resistivity.
+    The output consist of the topography and the ABMN electrode position with the apparent
+    resistivity.
     """
     if not os.path.isfile(file_name):
-    	raise ValueError("{} does not exist, make sure file is in the same directory".format(file_name))
-	
+        raise ValueError("{} does not exist, make sure file is in the same directory".
+                         format(file_name))
+
     processed_file = supersting_processing(file_name)
     # extract the xyz positions of the array and stack them vertically
-    Apos = processed_file[:, 2:5]
-    Bpos = processed_file[:, 5:8]
-    Mpos = processed_file[:, 8:11]
-    Npos = processed_file[:, 11:14]
+    a_pos = processed_file[:, 2:5]
+    b_pos = processed_file[:, 5:8]
+    m_pos = processed_file[:, 8:11]
+    n_pos = processed_file[:, 11:14]
 
-    electrode_pos = np.vstack((Apos, Bpos, Mpos, Npos))
+    electrode_pos = np.vstack((a_pos, b_pos, m_pos, n_pos))
 
     # rounds the floats in the array to the nearest integer tending to zero
     pseudo_data = 100 ** precision
     datafix = np.fix(electrode_pos * pseudo_data) / pseudo_data + 0.0
 
-    # gets the actual electrodes numbering of the ABMN electrodes and create synthetic data.
+    # gets the actual electrodes numbering of the ABMN(elect_arr) electrodes and
+    # create synthetic data.
     dtype = np.dtype((np.void, datafix.dtype.itemsize * datafix.shape[1]))
     byte = np.ascontiguousarray(datafix).view(dtype)
-    _, ia = np.unique(byte, return_index=True)
-    _, ib = np.unique(byte, return_inverse=True)
+    _, a_current = np.unique(byte, return_index=True)
+    _, b_current = np.unique(byte, return_inverse=True)
 
     # get electrode configuration and obtain the forward and reverse index
     org_pos = np.unique(byte).view(datafix.dtype).reshape(-1, datafix.shape[1])
-    fwd_ind, rev_ind = ia, ib
+    _, rev_ind = a_current, b_current
 
     # create an instance of the pybert DataContainerERT
     data = pg.DataContainerERT()
@@ -101,9 +118,9 @@ def standardized_4BERT(file_name, precision=2, save_file=False):
     all_info = np.genfromtxt(file_name, delimiter=',', skip_header=3)
 
     data.resize(len(all_info))
-    ABMN = rev_ind.reshape(4, -1).T
+    elect_arr = rev_ind.reshape(4, -1).T
 
-    for i, abmn in enumerate(ABMN):
+    for i, abmn in enumerate(elect_arr):
         ind = [int(ii) for ii in abmn]
         data.createFourPointData(i, *ind)  # ind[1], ind[0], ind[2], ind[3])
 
@@ -121,7 +138,7 @@ def standardized_4BERT(file_name, precision=2, save_file=False):
     data.sortSensorsX()
 
     # save the file in .dat format and can be visualized using notepad or any text application.
-    if save_file == True:
+    if save_file:
         pb.exportData(data, 'supersting.dat')
 
     return data
