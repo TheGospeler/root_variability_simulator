@@ -1,4 +1,4 @@
-"""Import Dependency"""
+"""Import Dependency."""
 from copy import copy
 import numpy as np
 
@@ -24,6 +24,7 @@ class ElectrodeScheme():
 
     Attributes:
     array_name: Displays the electrode configuration present in the input dataset.
+
     """
 
     def __init__(self, data):
@@ -53,11 +54,14 @@ class ElectrodeScheme():
                using the other functions before saving.
 
         returns:
-               A list, structured in the similitude of the saved file."""
+               A list, structured in the similitude of the saved file.
+
+        """
         with open(self.data, 'r', encoding='utf-8') as files:
             file = files.readlines()
 
         # compiled_data holds all the information in the extract_electrodes
+        # reinitializes at every instance to avoid compounded data
         self.compiled_data = []
 
         sensor = int(file[0].split()[0])

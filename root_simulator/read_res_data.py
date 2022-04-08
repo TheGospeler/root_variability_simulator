@@ -1,4 +1,3 @@
-# %load read_res_data.py
 """importing dependency modules."""
 import os
 import numpy as np
@@ -27,15 +26,15 @@ def supersting_processing(file, col=(-4, -1), row=1, save_file=False):
         save_file- boolean. To save the file, change the parameter to True to save as .txt.
     """
     if not os.path.isfile(file):
-        raise ValueError("{} does not exist, make sure file is in the same directory".format(file))
+        raise ValueError(f"{file} does not exist, make sure file is in the same directory")
 
-    with open(file, 'r') as fil:
+    with open(file, 'r', encoding='utf-8') as fil:
         supersting_file = fil.readlines()
 
     # Get the number of records automatically
     for char in range(5, 1, -1):
         last_line = supersting_file[1][-char:-1]  # The number of records may not exceed 10,000s
-        if type(int(last_line)) == int:
+        if isinstance(int(last_line), int):
             check_col = int(last_line)
             break
 
@@ -58,19 +57,19 @@ def supersting_processing(file, col=(-4, -1), row=1, save_file=False):
     data = np.ones((record, len(relevant_col)))
 
     # extract each line of the supersting file and separate each information. filling the array
-    for i in range(len(supersting)):
+    for i, _ in enumerate(supersting):
         line = supersting[i].replace(',', " ").split()
-        for j in range(len(relevant_col)):
+        for j, _ in enumerate(relevant_col):
             data[i][j] = line[relevant_col[j]]
 
     if save_file:
-        np.savetxt(f"{data[:-4]}_res.dat", data, header='R rhoa A(xyz) B(xyz) M(xyz) N(xyz)')
+        np.savetxt(f"{file[5:-4]}_res.dat", data, header='R rhoa A(xyz) B(xyz) M(xyz) N(xyz)')
 
     return data
 
 
 def standardized_bert(file_name, precision=2, save_file=False):
-    """The Standardized_bert function returns the required data needed for the BERT model.
+    """Standardized_bert function returns the required data needed for the BERT model.
 
     Dependencies: numpy, pybert, pygimli
     Parameters: file_name- The supersting input file.
@@ -83,8 +82,7 @@ def standardized_bert(file_name, precision=2, save_file=False):
     resistivity.
     """
     if not os.path.isfile(file_name):
-        raise ValueError("{} does not exist, make sure file is in the same directory".
-                         format(file_name))
+        raise ValueError("{file_name} does not exist, make sure file is in the same directory")
 
     processed_file = supersting_processing(file_name)
     # extract the xyz positions of the array and stack them vertically
@@ -140,6 +138,8 @@ def standardized_bert(file_name, precision=2, save_file=False):
 
     # save the file in .dat format and can be visualized using notepad or any text application.
     if save_file:
-        pb.exportData(data, f'{data[:-4]}.dat')
+        # The string format used is typical to how I am reading my file.
+        # If the data is present in the directory, change '5:-4' to ':-4'
+        pb.exportData(data, f'{file_name[5:-4]}.dat')
 
     return data
