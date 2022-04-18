@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>root_simulator.sensitivity_build API documentation</title>
+<meta name="description" content="Sensitivity build module enhances the result of the subsurface by using the optimal array config." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>root_simulator.sensitivity_build</code></h1>
+</header>
+<section id="section-intro">
+<p>Sensitivity build module enhances the result of the subsurface by using the optimal array config.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Sensitivity build module enhances the result of the subsurface by using the optimal array config.&#34;&#34;&#34;
+from copy import copy
+import numpy as np
+
+
+class ElectrodeScheme():
+    &#34;&#34;&#34;Modify the supersting.dat file to desired specifications.
+
+    The ElectrodeScheme reads in the *.dat file and return a new .dat file with the desired
+    electrode configuration. The class has functions that can modify the inherit electrode
+    configuration to other allowable configurations that allows the user to perform simulations
+    with known or hypothetical resistivity values in evaluating the sensitivity of similar electrode
+    configuration.
+
+    Dependable: numpy, read_res_data.
+
+    Parameter
+    ----------
+    data: The data should be the output from the standardized_bert function in the read_res_data package.
+
+    Functions:
+    ---------
+    extract_electrode: extract the columns of the current and potential electrodes.
+    get_electrode_conf: Returns the name of the electrode configuration used in the geophysical survey.
+    modify_electrode: Computes and changes the inherent electrode configuration.
+
+    Attributes
+    ----------
+    array_name: Displays the electrode configuration present in the input dataset.
+    compiled_data: List containing information electrode distance and electrode configuration.
+    data_without_electr: Contains the information in the .dat file without the electrode configuration.
+    electr_data: Contains the electrode configuration information exclusively.
+    modify_output: List containing the result of the modified output.
+    
+    
+
+    &#34;&#34;&#34;
+
+    def __init__(self, data):
+        &#34;&#34;&#34;Accept the *.dat data file, and initializes global variables.&#34;&#34;&#34;
+        self.data = data
+        self.compiled_data = []
+        self.data_without_electr = []
+        self.electr_data = []
+        self.array_name = &#34;Call get_array_name&#34;
+        self.curr_a = &#34;Call extract_electrode() or modify_electrode()&#34;  # current A electrode
+        self.curr_b = &#34;Call extract_electrode() or modify_electrode()&#34;  # current B electrode
+        self.pot_m = &#34;Call extract_electrode() or modify_electrode()&#34;  # Potential M electrode
+        self.pot_n = &#34;Call extract_electrode() or modify_electrode()&#34;  # Potential N electrode
+        self.modify_output = &#34;Call the modify_electrodes()&#34;
+
+    def extract_electrode(self, save_file=False):
+        &#34;&#34;&#34;Read the .dat file and return a new file with the electrode configuration data.
+
+        The .dat file contains several other information contained in the data info section,
+        and for the forward modeling, where we want to perform certain simulations; we want
+        to simulate the electrode configuration with the actual or synthetic resistivity data.
+        The extract_electrode function helps isolate the electrode configuration from the .dat
+        file and return a new file while still maintaining the bert structure of the input data.
+
+        Parameters
+        ----------
+        save_file: Boolean. You can choose to save the file or perform other operation, using the other functions before saving.
+
+        return
+        ------
+        A list, structured in the similitude of the saved file.
+
+        &#34;&#34;&#34;
+        with open(self.data, &#39;r&#39;, encoding=&#39;utf-8&#39;) as files:
+            file = files.readlines()
+
+        # compiled_data holds all the information in the extract_electrodes
+        # reinitialize at every instance to avoid compounded data
+        self.compiled_data = []
+
+        sensor = int(file[0].split()[0])
+        self.compiled_data.append(str(sensor) + &#39;\n&#39;)
+
+        sensor_header = file[1]
+        self.compiled_data.append(sensor_header)
+
+        sensor_info = np.loadtxt(self.data, skiprows=2, max_rows=sensor)
+        for sen in sensor_info.tolist():
+            self.compiled_data.append(f&#39;{sen[0]} {sen[1]} {sen[2]}\n&#39;)
+
+        data_num = file[sensor + 2]
+        self.compiled_data.append(data_num)
+
+        data_header = file[sensor + 3][:9] + &#39;\n&#39;  # only interested in the a b m n
+        self.compiled_data.append(data_header)
+
+        # The data_without_electr contains all the data except electr_data.
+        # This is useful, as the manipulated electrode configuration can be easily attached to it.
+        self.data_without_electr = copy(self.compiled_data)
+
+        self.electr_data = np.loadtxt(self.data, skiprows=sensor + 3,
+                                      max_rows=int(data_num))[:, :4]
+
+        # unpack the first row to identify the electrode configuration.
+        # curr_a1, curr_b1 represents the current A and B electrodes, and, pot_m1, pot_n1
+        # represent the potential M and N, electrodes.
+        curr_a1, curr_b1 = self.electr_data[0, 0], self.electr_data[0, 1]
+        pot_m1, pot_n1 = self.electr_data[0, 2], self.electr_data[0, 3]
+
+        self.curr_a, self.curr_b = self.electr_data[:, 0], self.electr_data[:, 1]
+        self.pot_m, self.pot_n = self.electr_data[:, 2], self.electr_data[:, 3]
+
+        # Get the name of the array
+        if pot_m1 - curr_a1 == pot_n1 - pot_m1 == curr_b1 - pot_n1:
+            self.array_name = &#39;Wenner Alpha&#39;
+
+        elif curr_a1 - curr_b1 == pot_m1 - curr_a1 == pot_n1 - pot_m1:
+            self.array_name = &#39;Wenner Beta&#39;
+
+        elif pot_m1 - curr_a1 == curr_b1 - pot_m1 == pot_n1 - curr_b1:
+            self.array_name = &#39;Wenner Gamma&#39;
+
+        elif curr_a1 - curr_b1 == pot_n1 - pot_m1 and pot_m1 - curr_b1 == pot_n1 - curr_a1:
+            self.array_name = &#39;Dipole-Dipole&#39;
+
+        elif pot_n1 - curr_a1 == curr_b1 - pot_m1 and pot_m1 - curr_a1 == curr_b1 - pot_n1:
+            self.array_name = &#39;Schlumberger&#39;
+
+        else:
+            self.array_name = &#39;Cannot identify array&#39;
+
+        # append the new sorted array configuration in the list
+        for dat in self.electr_data.tolist():
+            self.compiled_data.append(f&#39;{dat[0]} {dat[1]} {dat[2]} {dat[3]}\n&#39;)
+
+        if save_file:
+            with open(f&#39;{self.data[:-4]}.shm&#39;, &#39;w&#39;, encoding=&#39;utf-8&#39;) as files:
+                for line in self.compiled_data:
+                    files.write(line)
+
+        return self.compiled_data
+
+    def get_electrode_conf(self):
+        &#34;&#34;&#34;Return the electrode configuration present in the input data.&#34;&#34;&#34;
+
+        # activate the extract_electrode to get all the attributes needed.
+        __activate_arr = self.extract_electrode()
+
+        return self.array_name
+
+    def __save_modification(self, name, specified_data):
+        &#34;&#34;&#34;Save the file in present directory if the user chooses to save file.
+
+        This is a private function that helps reduces unnecessarily length of the codes, since
+        I will be using the same structure for the different boolean construct.
+        &#34;&#34;&#34;
+        save_new_file = input(&#39;Do you want to save file? Y/N: &#39;)
+        if save_new_file.upper() == &#39;Y&#39;:
+            with open(f&#39;{self.data[:-4]}_{name}_arr.shm&#39;, &#39;w&#39;, encoding=&#39;utf-8&#39;) as files:
+                for line in specified_data:
+                    files.write(line)
+
+    def modify_electrode(self):
+        &#34;&#34;&#34;Modify the inherit array if change of array positions are possible.
+
+        Based on the the electrode configuration existing in the Electrical Resistivity Geophysical
+        Techniques, the Wenner Configurations are the only array that can be interchanged because
+        the electrode spacing are the same, while the others are not.
+
+        This is not an easy modification as it requires critical thinking. The modification must
+        not change the bert perception as arranging the the electrode configuration as A, B, M, N.
+        &#34;&#34;&#34;
+        # activate the extract_electrode to get all the attributes needed.
+        __activate_arr = self.extract_electrode()
+
+        if self.array_name == &#34;Wenner Alpha&#34;:
+            print(&#34;The array configuration is Wenner Alpha, and can be modified to Beta or Gamma&#34;)
+            choice = input(&#34;Enter &#39;B&#39; to modify to Wenner Beta or &#39;G&#39; to modify to Wenner Gamma: &#34;)
+
+            if choice.upper() == &#39;B&#39;:
+                beta_electr_data = np.vstack([self.pot_m, self.curr_a, self.pot_n, self.curr_b]).T
+
+                # make a duplicate copy of the data_without_electr
+                beta_data = copy(self.data_without_electr)
+
+                for line in beta_electr_data.tolist():
+                    beta_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;beta&#39;, beta_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = beta_data
+
+            elif choice.upper() == &#39;G&#39;:
+                gamma_electr_data = np.vstack([self.curr_a, self.pot_n, self.pot_m, self.curr_b]).T
+
+                # make a duplicate copy of the data_without_electr
+                gamma_data = copy(self.data_without_electr)
+
+                for line in gamma_electr_data.tolist():
+                    gamma_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;gamma&#39;, gamma_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = gamma_data
+
+            else:
+                print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+        elif self.array_name == &#34;Wenner Beta&#34;:
+            print(&#34;The array configuration is Wenner Beta, and can be modified to Alpha or Gamma&#34;)
+            choice = input(&#34;Enter &#39;A&#39; to modify to Wenner Alpha or &#39;G&#39; to modify to Wenner Gamma: &#34;)
+
+            if choice.upper() == &#39;A&#39;:
+                alpha_electr_data = np.vstack([self.curr_b, self.pot_n, self.curr_a, self.pot_m]).T
+
+                # make a duplicate copy of the data_without_electr
+                alpha_data = copy(self.data_without_electr)
+
+                for line in alpha_electr_data.tolist():
+                    alpha_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;alpha&#39;, alpha_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = alpha_data
+
+            elif choice.upper() == &#39;G&#39;:
+                gamma_electr_data = np.vstack([self.curr_b, self.pot_m, self.curr_a, self.pot_n]).T
+
+                # make a duplicate copy of the data_without_electr
+                gamma_data = copy(self.data_without_electr)
+
+                for line in gamma_electr_data.tolist():
+                    gamma_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;gamma&#39;, gamma_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = gamma_data
+
+            else:
+                print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+        elif self.array_name == &#34;Wenner Gamma&#34;:
+            print(&#34;The array configuration is Wenner Gamma, and can be modified to  Alpha or Beta&#34;)
+            choice = input(&#34;Enter &#39;A&#39; to modify to Wenner Alpha or &#39;B&#39; to modify to Wenner Beta: &#34;)
+
+            if choice.upper() == &#39;A&#39;:
+                alpha_electr_data = np.vstack([self.curr_a, self.pot_n, self.pot_m, self.curr_b]).T
+
+                # make a duplicate copy of the data_without_electr
+                alpha_data = copy(self.data_without_electr)
+
+                for line in alpha_electr_data.tolist():
+                    alpha_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;alpha&#39;, alpha_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = alpha_data
+
+            elif choice.upper() == &#39;B&#39;:
+                beta_electr_data = np.vstack([self.pot_m, self.curr_a, self.curr_b, self.pot_n]).T
+
+                # make a duplicate copy of the data_without_electr
+                beta_data = copy(self.data_without_electr)
+
+                for line in beta_electr_data.tolist():
+                    beta_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;beta&#39;, beta_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = beta_data
+
+            else:
+                print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+        elif self.array_name in [&#34;Schlumberger&#34;, &#34;Dipole-Dipole&#34;]:
+            print(f&#34;The array configuration is {self.array_name}, hence due to the complexity of&#34;
+                  &#34; the electrodes configuration, a modification cannot be done&#34;)
+
+        return self.modify_output</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="root_simulator.sensitivity_build.ElectrodeScheme"><code class="flex name class">
+<span>class <span class="ident">ElectrodeScheme</span></span>
+<span>(</span><span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Modify the supersting.dat file to desired specifications.</p>
+<p>The ElectrodeScheme reads in the *.dat file and return a new .dat file with the desired
+electrode configuration. The class has functions that can modify the inherit electrode
+configuration to other allowable configurations that allows the user to perform simulations
+with known or hypothetical resistivity values in evaluating the sensitivity of similar electrode
+configuration.</p>
+<p>Dependable: numpy, read_res_data.</p>
+<h2 id="parameter">Parameter</h2>
+<p>data: The data should be the output from the standardized_bert function in the read_res_data package.</p>
+<h2 id="functions">Functions:</h2>
+<p>extract_electrode: extract the columns of the current and potential electrodes.
+get_electrode_conf: Returns the name of the electrode configuration used in the geophysical survey.
+modify_electrode: Computes and changes the inherent electrode configuration.</p>
+<h2 id="attributes">Attributes</h2>
+<p>array_name: Displays the electrode configuration present in the input dataset.
+compiled_data: List containing information electrode distance and electrode configuration.
+data_without_electr: Contains the information in the .dat file without the electrode configuration.
+electr_data: Contains the electrode configuration information exclusively.
+modify_output: List containing the result of the modified output.</p>
+<p>Accept the *.dat data file, and initializes global variables.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ElectrodeScheme():
+    &#34;&#34;&#34;Modify the supersting.dat file to desired specifications.
+
+    The ElectrodeScheme reads in the *.dat file and return a new .dat file with the desired
+    electrode configuration. The class has functions that can modify the inherit electrode
+    configuration to other allowable configurations that allows the user to perform simulations
+    with known or hypothetical resistivity values in evaluating the sensitivity of similar electrode
+    configuration.
+
+    Dependable: numpy, read_res_data.
+
+    Parameter
+    ----------
+    data: The data should be the output from the standardized_bert function in the read_res_data package.
+
+    Functions:
+    ---------
+    extract_electrode: extract the columns of the current and potential electrodes.
+    get_electrode_conf: Returns the name of the electrode configuration used in the geophysical survey.
+    modify_electrode: Computes and changes the inherent electrode configuration.
+
+    Attributes
+    ----------
+    array_name: Displays the electrode configuration present in the input dataset.
+    compiled_data: List containing information electrode distance and electrode configuration.
+    data_without_electr: Contains the information in the .dat file without the electrode configuration.
+    electr_data: Contains the electrode configuration information exclusively.
+    modify_output: List containing the result of the modified output.
+    
+    
+
+    &#34;&#34;&#34;
+
+    def __init__(self, data):
+        &#34;&#34;&#34;Accept the *.dat data file, and initializes global variables.&#34;&#34;&#34;
+        self.data = data
+        self.compiled_data = []
+        self.data_without_electr = []
+        self.electr_data = []
+        self.array_name = &#34;Call get_array_name&#34;
+        self.curr_a = &#34;Call extract_electrode() or modify_electrode()&#34;  # current A electrode
+        self.curr_b = &#34;Call extract_electrode() or modify_electrode()&#34;  # current B electrode
+        self.pot_m = &#34;Call extract_electrode() or modify_electrode()&#34;  # Potential M electrode
+        self.pot_n = &#34;Call extract_electrode() or modify_electrode()&#34;  # Potential N electrode
+        self.modify_output = &#34;Call the modify_electrodes()&#34;
+
+    def extract_electrode(self, save_file=False):
+        &#34;&#34;&#34;Read the .dat file and return a new file with the electrode configuration data.
+
+        The .dat file contains several other information contained in the data info section,
+        and for the forward modeling, where we want to perform certain simulations; we want
+        to simulate the electrode configuration with the actual or synthetic resistivity data.
+        The extract_electrode function helps isolate the electrode configuration from the .dat
+        file and return a new file while still maintaining the bert structure of the input data.
+
+        Parameters
+        ----------
+        save_file: Boolean. You can choose to save the file or perform other operation, using the other functions before saving.
+
+        return
+        ------
+        A list, structured in the similitude of the saved file.
+
+        &#34;&#34;&#34;
+        with open(self.data, &#39;r&#39;, encoding=&#39;utf-8&#39;) as files:
+            file = files.readlines()
+
+        # compiled_data holds all the information in the extract_electrodes
+        # reinitialize at every instance to avoid compounded data
+        self.compiled_data = []
+
+        sensor = int(file[0].split()[0])
+        self.compiled_data.append(str(sensor) + &#39;\n&#39;)
+
+        sensor_header = file[1]
+        self.compiled_data.append(sensor_header)
+
+        sensor_info = np.loadtxt(self.data, skiprows=2, max_rows=sensor)
+        for sen in sensor_info.tolist():
+            self.compiled_data.append(f&#39;{sen[0]} {sen[1]} {sen[2]}\n&#39;)
+
+        data_num = file[sensor + 2]
+        self.compiled_data.append(data_num)
+
+        data_header = file[sensor + 3][:9] + &#39;\n&#39;  # only interested in the a b m n
+        self.compiled_data.append(data_header)
+
+        # The data_without_electr contains all the data except electr_data.
+        # This is useful, as the manipulated electrode configuration can be easily attached to it.
+        self.data_without_electr = copy(self.compiled_data)
+
+        self.electr_data = np.loadtxt(self.data, skiprows=sensor + 3,
+                                      max_rows=int(data_num))[:, :4]
+
+        # unpack the first row to identify the electrode configuration.
+        # curr_a1, curr_b1 represents the current A and B electrodes, and, pot_m1, pot_n1
+        # represent the potential M and N, electrodes.
+        curr_a1, curr_b1 = self.electr_data[0, 0], self.electr_data[0, 1]
+        pot_m1, pot_n1 = self.electr_data[0, 2], self.electr_data[0, 3]
+
+        self.curr_a, self.curr_b = self.electr_data[:, 0], self.electr_data[:, 1]
+        self.pot_m, self.pot_n = self.electr_data[:, 2], self.electr_data[:, 3]
+
+        # Get the name of the array
+        if pot_m1 - curr_a1 == pot_n1 - pot_m1 == curr_b1 - pot_n1:
+            self.array_name = &#39;Wenner Alpha&#39;
+
+        elif curr_a1 - curr_b1 == pot_m1 - curr_a1 == pot_n1 - pot_m1:
+            self.array_name = &#39;Wenner Beta&#39;
+
+        elif pot_m1 - curr_a1 == curr_b1 - pot_m1 == pot_n1 - curr_b1:
+            self.array_name = &#39;Wenner Gamma&#39;
+
+        elif curr_a1 - curr_b1 == pot_n1 - pot_m1 and pot_m1 - curr_b1 == pot_n1 - curr_a1:
+            self.array_name = &#39;Dipole-Dipole&#39;
+
+        elif pot_n1 - curr_a1 == curr_b1 - pot_m1 and pot_m1 - curr_a1 == curr_b1 - pot_n1:
+            self.array_name = &#39;Schlumberger&#39;
+
+        else:
+            self.array_name = &#39;Cannot identify array&#39;
+
+        # append the new sorted array configuration in the list
+        for dat in self.electr_data.tolist():
+            self.compiled_data.append(f&#39;{dat[0]} {dat[1]} {dat[2]} {dat[3]}\n&#39;)
+
+        if save_file:
+            with open(f&#39;{self.data[:-4]}.shm&#39;, &#39;w&#39;, encoding=&#39;utf-8&#39;) as files:
+                for line in self.compiled_data:
+                    files.write(line)
+
+        return self.compiled_data
+
+    def get_electrode_conf(self):
+        &#34;&#34;&#34;Return the electrode configuration present in the input data.&#34;&#34;&#34;
+
+        # activate the extract_electrode to get all the attributes needed.
+        __activate_arr = self.extract_electrode()
+
+        return self.array_name
+
+    def __save_modification(self, name, specified_data):
+        &#34;&#34;&#34;Save the file in present directory if the user chooses to save file.
+
+        This is a private function that helps reduces unnecessarily length of the codes, since
+        I will be using the same structure for the different boolean construct.
+        &#34;&#34;&#34;
+        save_new_file = input(&#39;Do you want to save file? Y/N: &#39;)
+        if save_new_file.upper() == &#39;Y&#39;:
+            with open(f&#39;{self.data[:-4]}_{name}_arr.shm&#39;, &#39;w&#39;, encoding=&#39;utf-8&#39;) as files:
+                for line in specified_data:
+                    files.write(line)
+
+    def modify_electrode(self):
+        &#34;&#34;&#34;Modify the inherit array if change of array positions are possible.
+
+        Based on the the electrode configuration existing in the Electrical Resistivity Geophysical
+        Techniques, the Wenner Configurations are the only array that can be interchanged because
+        the electrode spacing are the same, while the others are not.
+
+        This is not an easy modification as it requires critical thinking. The modification must
+        not change the bert perception as arranging the the electrode configuration as A, B, M, N.
+        &#34;&#34;&#34;
+        # activate the extract_electrode to get all the attributes needed.
+        __activate_arr = self.extract_electrode()
+
+        if self.array_name == &#34;Wenner Alpha&#34;:
+            print(&#34;The array configuration is Wenner Alpha, and can be modified to Beta or Gamma&#34;)
+            choice = input(&#34;Enter &#39;B&#39; to modify to Wenner Beta or &#39;G&#39; to modify to Wenner Gamma: &#34;)
+
+            if choice.upper() == &#39;B&#39;:
+                beta_electr_data = np.vstack([self.pot_m, self.curr_a, self.pot_n, self.curr_b]).T
+
+                # make a duplicate copy of the data_without_electr
+                beta_data = copy(self.data_without_electr)
+
+                for line in beta_electr_data.tolist():
+                    beta_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;beta&#39;, beta_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = beta_data
+
+            elif choice.upper() == &#39;G&#39;:
+                gamma_electr_data = np.vstack([self.curr_a, self.pot_n, self.pot_m, self.curr_b]).T
+
+                # make a duplicate copy of the data_without_electr
+                gamma_data = copy(self.data_without_electr)
+
+                for line in gamma_electr_data.tolist():
+                    gamma_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;gamma&#39;, gamma_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = gamma_data
+
+            else:
+                print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+        elif self.array_name == &#34;Wenner Beta&#34;:
+            print(&#34;The array configuration is Wenner Beta, and can be modified to Alpha or Gamma&#34;)
+            choice = input(&#34;Enter &#39;A&#39; to modify to Wenner Alpha or &#39;G&#39; to modify to Wenner Gamma: &#34;)
+
+            if choice.upper() == &#39;A&#39;:
+                alpha_electr_data = np.vstack([self.curr_b, self.pot_n, self.curr_a, self.pot_m]).T
+
+                # make a duplicate copy of the data_without_electr
+                alpha_data = copy(self.data_without_electr)
+
+                for line in alpha_electr_data.tolist():
+                    alpha_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;alpha&#39;, alpha_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = alpha_data
+
+            elif choice.upper() == &#39;G&#39;:
+                gamma_electr_data = np.vstack([self.curr_b, self.pot_m, self.curr_a, self.pot_n]).T
+
+                # make a duplicate copy of the data_without_electr
+                gamma_data = copy(self.data_without_electr)
+
+                for line in gamma_electr_data.tolist():
+                    gamma_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;gamma&#39;, gamma_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = gamma_data
+
+            else:
+                print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+        elif self.array_name == &#34;Wenner Gamma&#34;:
+            print(&#34;The array configuration is Wenner Gamma, and can be modified to  Alpha or Beta&#34;)
+            choice = input(&#34;Enter &#39;A&#39; to modify to Wenner Alpha or &#39;B&#39; to modify to Wenner Beta: &#34;)
+
+            if choice.upper() == &#39;A&#39;:
+                alpha_electr_data = np.vstack([self.curr_a, self.pot_n, self.pot_m, self.curr_b]).T
+
+                # make a duplicate copy of the data_without_electr
+                alpha_data = copy(self.data_without_electr)
+
+                for line in alpha_electr_data.tolist():
+                    alpha_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;alpha&#39;, alpha_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = alpha_data
+
+            elif choice.upper() == &#39;B&#39;:
+                beta_electr_data = np.vstack([self.pot_m, self.curr_a, self.curr_b, self.pot_n]).T
+
+                # make a duplicate copy of the data_without_electr
+                beta_data = copy(self.data_without_electr)
+
+                for line in beta_electr_data.tolist():
+                    beta_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+                self.__save_modification(&#39;beta&#39;, beta_data)
+
+                # Modify_electrodes returns this option if selected
+                self.modify_output = beta_data
+
+            else:
+                print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+        elif self.array_name in [&#34;Schlumberger&#34;, &#34;Dipole-Dipole&#34;]:
+            print(f&#34;The array configuration is {self.array_name}, hence due to the complexity of&#34;
+                  &#34; the electrodes configuration, a modification cannot be done&#34;)
+
+        return self.modify_output</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="root_simulator.sensitivity_build.ElectrodeScheme.extract_electrode"><code class="name flex">
+<span>def <span class="ident">extract_electrode</span></span>(<span>self, save_file=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read the .dat file and return a new file with the electrode configuration data.</p>
+<p>The .dat file contains several other information contained in the data info section,
+and for the forward modeling, where we want to perform certain simulations; we want
+to simulate the electrode configuration with the actual or synthetic resistivity data.
+The extract_electrode function helps isolate the electrode configuration from the .dat
+file and return a new file while still maintaining the bert structure of the input data.</p>
+<h2 id="parameters">Parameters</h2>
+<p>save_file: Boolean. You can choose to save the file or perform other operation, using the other functions before saving.</p>
+<h2 id="return">Return</h2>
+<p>A list, structured in the similitude of the saved file.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def extract_electrode(self, save_file=False):
+    &#34;&#34;&#34;Read the .dat file and return a new file with the electrode configuration data.
+
+    The .dat file contains several other information contained in the data info section,
+    and for the forward modeling, where we want to perform certain simulations; we want
+    to simulate the electrode configuration with the actual or synthetic resistivity data.
+    The extract_electrode function helps isolate the electrode configuration from the .dat
+    file and return a new file while still maintaining the bert structure of the input data.
+
+    Parameters
+    ----------
+    save_file: Boolean. You can choose to save the file or perform other operation, using the other functions before saving.
+
+    return
+    ------
+    A list, structured in the similitude of the saved file.
+
+    &#34;&#34;&#34;
+    with open(self.data, &#39;r&#39;, encoding=&#39;utf-8&#39;) as files:
+        file = files.readlines()
+
+    # compiled_data holds all the information in the extract_electrodes
+    # reinitialize at every instance to avoid compounded data
+    self.compiled_data = []
+
+    sensor = int(file[0].split()[0])
+    self.compiled_data.append(str(sensor) + &#39;\n&#39;)
+
+    sensor_header = file[1]
+    self.compiled_data.append(sensor_header)
+
+    sensor_info = np.loadtxt(self.data, skiprows=2, max_rows=sensor)
+    for sen in sensor_info.tolist():
+        self.compiled_data.append(f&#39;{sen[0]} {sen[1]} {sen[2]}\n&#39;)
+
+    data_num = file[sensor + 2]
+    self.compiled_data.append(data_num)
+
+    data_header = file[sensor + 3][:9] + &#39;\n&#39;  # only interested in the a b m n
+    self.compiled_data.append(data_header)
+
+    # The data_without_electr contains all the data except electr_data.
+    # This is useful, as the manipulated electrode configuration can be easily attached to it.
+    self.data_without_electr = copy(self.compiled_data)
+
+    self.electr_data = np.loadtxt(self.data, skiprows=sensor + 3,
+                                  max_rows=int(data_num))[:, :4]
+
+    # unpack the first row to identify the electrode configuration.
+    # curr_a1, curr_b1 represents the current A and B electrodes, and, pot_m1, pot_n1
+    # represent the potential M and N, electrodes.
+    curr_a1, curr_b1 = self.electr_data[0, 0], self.electr_data[0, 1]
+    pot_m1, pot_n1 = self.electr_data[0, 2], self.electr_data[0, 3]
+
+    self.curr_a, self.curr_b = self.electr_data[:, 0], self.electr_data[:, 1]
+    self.pot_m, self.pot_n = self.electr_data[:, 2], self.electr_data[:, 3]
+
+    # Get the name of the array
+    if pot_m1 - curr_a1 == pot_n1 - pot_m1 == curr_b1 - pot_n1:
+        self.array_name = &#39;Wenner Alpha&#39;
+
+    elif curr_a1 - curr_b1 == pot_m1 - curr_a1 == pot_n1 - pot_m1:
+        self.array_name = &#39;Wenner Beta&#39;
+
+    elif pot_m1 - curr_a1 == curr_b1 - pot_m1 == pot_n1 - curr_b1:
+        self.array_name = &#39;Wenner Gamma&#39;
+
+    elif curr_a1 - curr_b1 == pot_n1 - pot_m1 and pot_m1 - curr_b1 == pot_n1 - curr_a1:
+        self.array_name = &#39;Dipole-Dipole&#39;
+
+    elif pot_n1 - curr_a1 == curr_b1 - pot_m1 and pot_m1 - curr_a1 == curr_b1 - pot_n1:
+        self.array_name = &#39;Schlumberger&#39;
+
+    else:
+        self.array_name = &#39;Cannot identify array&#39;
+
+    # append the new sorted array configuration in the list
+    for dat in self.electr_data.tolist():
+        self.compiled_data.append(f&#39;{dat[0]} {dat[1]} {dat[2]} {dat[3]}\n&#39;)
+
+    if save_file:
+        with open(f&#39;{self.data[:-4]}.shm&#39;, &#39;w&#39;, encoding=&#39;utf-8&#39;) as files:
+            for line in self.compiled_data:
+                files.write(line)
+
+    return self.compiled_data</code></pre>
+</details>
+</dd>
+<dt id="root_simulator.sensitivity_build.ElectrodeScheme.get_electrode_conf"><code class="name flex">
+<span>def <span class="ident">get_electrode_conf</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the electrode configuration present in the input data.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_electrode_conf(self):
+    &#34;&#34;&#34;Return the electrode configuration present in the input data.&#34;&#34;&#34;
+
+    # activate the extract_electrode to get all the attributes needed.
+    __activate_arr = self.extract_electrode()
+
+    return self.array_name</code></pre>
+</details>
+</dd>
+<dt id="root_simulator.sensitivity_build.ElectrodeScheme.modify_electrode"><code class="name flex">
+<span>def <span class="ident">modify_electrode</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Modify the inherit array if change of array positions are possible.</p>
+<p>Based on the the electrode configuration existing in the Electrical Resistivity Geophysical
+Techniques, the Wenner Configurations are the only array that can be interchanged because
+the electrode spacing are the same, while the others are not.</p>
+<p>This is not an easy modification as it requires critical thinking. The modification must
+not change the bert perception as arranging the the electrode configuration as A, B, M, N.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def modify_electrode(self):
+    &#34;&#34;&#34;Modify the inherit array if change of array positions are possible.
+
+    Based on the the electrode configuration existing in the Electrical Resistivity Geophysical
+    Techniques, the Wenner Configurations are the only array that can be interchanged because
+    the electrode spacing are the same, while the others are not.
+
+    This is not an easy modification as it requires critical thinking. The modification must
+    not change the bert perception as arranging the the electrode configuration as A, B, M, N.
+    &#34;&#34;&#34;
+    # activate the extract_electrode to get all the attributes needed.
+    __activate_arr = self.extract_electrode()
+
+    if self.array_name == &#34;Wenner Alpha&#34;:
+        print(&#34;The array configuration is Wenner Alpha, and can be modified to Beta or Gamma&#34;)
+        choice = input(&#34;Enter &#39;B&#39; to modify to Wenner Beta or &#39;G&#39; to modify to Wenner Gamma: &#34;)
+
+        if choice.upper() == &#39;B&#39;:
+            beta_electr_data = np.vstack([self.pot_m, self.curr_a, self.pot_n, self.curr_b]).T
+
+            # make a duplicate copy of the data_without_electr
+            beta_data = copy(self.data_without_electr)
+
+            for line in beta_electr_data.tolist():
+                beta_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+            self.__save_modification(&#39;beta&#39;, beta_data)
+
+            # Modify_electrodes returns this option if selected
+            self.modify_output = beta_data
+
+        elif choice.upper() == &#39;G&#39;:
+            gamma_electr_data = np.vstack([self.curr_a, self.pot_n, self.pot_m, self.curr_b]).T
+
+            # make a duplicate copy of the data_without_electr
+            gamma_data = copy(self.data_without_electr)
+
+            for line in gamma_electr_data.tolist():
+                gamma_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+            self.__save_modification(&#39;gamma&#39;, gamma_data)
+
+            # Modify_electrodes returns this option if selected
+            self.modify_output = gamma_data
+
+        else:
+            print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+    elif self.array_name == &#34;Wenner Beta&#34;:
+        print(&#34;The array configuration is Wenner Beta, and can be modified to Alpha or Gamma&#34;)
+        choice = input(&#34;Enter &#39;A&#39; to modify to Wenner Alpha or &#39;G&#39; to modify to Wenner Gamma: &#34;)
+
+        if choice.upper() == &#39;A&#39;:
+            alpha_electr_data = np.vstack([self.curr_b, self.pot_n, self.curr_a, self.pot_m]).T
+
+            # make a duplicate copy of the data_without_electr
+            alpha_data = copy(self.data_without_electr)
+
+            for line in alpha_electr_data.tolist():
+                alpha_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+            self.__save_modification(&#39;alpha&#39;, alpha_data)
+
+            # Modify_electrodes returns this option if selected
+            self.modify_output = alpha_data
+
+        elif choice.upper() == &#39;G&#39;:
+            gamma_electr_data = np.vstack([self.curr_b, self.pot_m, self.curr_a, self.pot_n]).T
+
+            # make a duplicate copy of the data_without_electr
+            gamma_data = copy(self.data_without_electr)
+
+            for line in gamma_electr_data.tolist():
+                gamma_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+            self.__save_modification(&#39;gamma&#39;, gamma_data)
+
+            # Modify_electrodes returns this option if selected
+            self.modify_output = gamma_data
+
+        else:
+            print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+    elif self.array_name == &#34;Wenner Gamma&#34;:
+        print(&#34;The array configuration is Wenner Gamma, and can be modified to  Alpha or Beta&#34;)
+        choice = input(&#34;Enter &#39;A&#39; to modify to Wenner Alpha or &#39;B&#39; to modify to Wenner Beta: &#34;)
+
+        if choice.upper() == &#39;A&#39;:
+            alpha_electr_data = np.vstack([self.curr_a, self.pot_n, self.pot_m, self.curr_b]).T
+
+            # make a duplicate copy of the data_without_electr
+            alpha_data = copy(self.data_without_electr)
+
+            for line in alpha_electr_data.tolist():
+                alpha_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+            self.__save_modification(&#39;alpha&#39;, alpha_data)
+
+            # Modify_electrodes returns this option if selected
+            self.modify_output = alpha_data
+
+        elif choice.upper() == &#39;B&#39;:
+            beta_electr_data = np.vstack([self.pot_m, self.curr_a, self.curr_b, self.pot_n]).T
+
+            # make a duplicate copy of the data_without_electr
+            beta_data = copy(self.data_without_electr)
+
+            for line in beta_electr_data.tolist():
+                beta_data.append(f&#39;{line[0]} {line[1]} {line[2]} {line[3]}\n&#39;)
+            self.__save_modification(&#39;beta&#39;, beta_data)
+
+            # Modify_electrodes returns this option if selected
+            self.modify_output = beta_data
+
+        else:
+            print(&#39;You entered a wrong letter... printing out the sensor information only&#39;)
+
+    elif self.array_name in [&#34;Schlumberger&#34;, &#34;Dipole-Dipole&#34;]:
+        print(f&#34;The array configuration is {self.array_name}, hence due to the complexity of&#34;
+              &#34; the electrodes configuration, a modification cannot be done&#34;)
+
+    return self.modify_output</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="root_simulator" href="index.html">root_simulator</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="root_simulator.sensitivity_build.ElectrodeScheme" href="#root_simulator.sensitivity_build.ElectrodeScheme">ElectrodeScheme</a></code></h4>
+<ul class="">
+<li><code><a title="root_simulator.sensitivity_build.ElectrodeScheme.extract_electrode" href="#root_simulator.sensitivity_build.ElectrodeScheme.extract_electrode">extract_electrode</a></code></li>
+<li><code><a title="root_simulator.sensitivity_build.ElectrodeScheme.get_electrode_conf" href="#root_simulator.sensitivity_build.ElectrodeScheme.get_electrode_conf">get_electrode_conf</a></code></li>
+<li><code><a title="root_simulator.sensitivity_build.ElectrodeScheme.modify_electrode" href="#root_simulator.sensitivity_build.ElectrodeScheme.modify_electrode">modify_electrode</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

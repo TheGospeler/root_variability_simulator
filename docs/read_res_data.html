@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2" />
 <title>root_simulator.read_res_data API documentation</title>
-<meta name="description" content="importing dependency modules." />
+<meta name="description" content="The read_res_data module transforms the supersting raw file into compatible data formats." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,39 +22,155 @@
 <h1 class="title">Module <code>root_simulator.read_res_data</code></h1>
 </header>
 <section id="section-intro">
-<p>importing dependency modules.</p>
+<p>The read_res_data module transforms the supersting raw file into compatible data formats.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;importing dependency modules.&#34;&#34;&#34;
+<pre><code class="python">&#34;&#34;&#34;The read_res_data module transforms the supersting raw file into compatible data formats.&#34;&#34;&#34;
+import os
 import numpy as np
-import csv
-
-def res_data(csv_file, header=0):
-        &#34;&#34;&#34;Read in the csv file location.
-
-        The csv_file should should contain the resistivity and the regional number or depth data, 
-        and returns a 2D array of the file to be used in BERT module.
-
-        Dependency: csv_format, csv, numpy module
-        Parameters:
-        csv_file --location of the csv file ending with &#39;.csv&#39;.The regional number should be in the first column and resistivity values on the second.
-
-        header -- Replace 0 with 1 if file contain header
+import pybert as pb
+import pygimli as pg
 
 
-        For example, csv_file = &#39;../res_data.csv&#39; or &#39;res_data.csv&#39; if file is in correct directory.
-        &#34;&#34;&#34;
-        res_data = csv.reader(open(csvfile, &#39;r&#39;), delimiter=&#39;,&#39;, quotechar=&#39;&#34;&#39;)
-        rows = [row for row in res_data]
+def supersting_processing(file, col=(-4, -1), row=1, save_file=False):
+    &#34;&#34;&#34;Read in the supersting file and extract the measured res. values and electrodes arrangement.
 
-        rhomap = np.ones([len(rows)-header, 2])
-        for line in rows:
-                rhomap[line-header, 0] = rows[line][0]
-                rhomap[line-header, 1] = rows[line][1]
+    The Supersting file has a standard output format. The total number of records measured is
+    situated at the end of the second row.
 
-        return rhomap</code></pre>
+    Dependence: os, numpy
+    
+    Parameters
+    ----------
+    file: The name of the file should be in the current directory or the path should be added.
+    row: The row shouldn&#39;t change except in case of special cases.
+    col: The default used is hundreds of points. if the record is not up to hundred,
+        change to (-3, -1), if total points are up to a thousand, change to (-5:-1).
+    save_file: boolean. To save the file, change the parameter to True to save as .txt.
+    &#34;&#34;&#34;
+    if not os.path.isfile(file):
+        raise ValueError(f&#34;{file} does not exist, make sure file is in the same directory&#34;)
+
+    with open(file, &#39;r&#39;, encoding=&#39;utf-8&#39;) as fil:
+        supersting_file = fil.readlines()
+
+    # Get the number of records automatically
+    for char in range(5, 1, -1):
+        last_line = supersting_file[1][-char:-1]  # The number of records may not exceed 10,000s
+        if isinstance(int(last_line), int):
+            check_col = int(last_line)
+            break
+
+    if type(int(supersting_file[row][col[0]:col[1]])) not in [int]:
+        raise ValueError(&#39;Please make sure you enter the correct col position&#39;)
+
+    record = int(supersting_file[row][col[0]:col[1]])
+
+    # overrides if the user enters a wrong record position that might break the code
+    if check_col &gt; record:
+        record = check_col
+
+    # remove the header
+    supersting = supersting_file[3:]
+
+    # The position of the resistance, resistivity and the ABMN (xyz for each):
+    relevant_col = [4, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+    # create the numpy array size to accommodate the resistance, resistivity and ABMN files
+    data = np.ones((record, len(relevant_col)))
+
+    # extract each line of the supersting file and separate each information. filling the array
+    for i, _ in enumerate(supersting):
+        line = supersting[i].replace(&#39;,&#39;, &#34; &#34;).split()
+        for j, _ in enumerate(relevant_col):
+            data[i][j] = line[relevant_col[j]]
+
+    if save_file:
+        np.savetxt(f&#34;{file[:-4]}_res.dat&#34;, data, header=&#39;R rhoa A(xyz) B(xyz) M(xyz) N(xyz)&#39;)
+
+    return data
+
+
+def standardized_bert(file_name, precision=2, save_file=False):
+    &#34;&#34;&#34;Standardized_bert function returns the required data needed for the (PyGIMLi) BERT model.
+
+    Dependencies: numpy, pybert, pygimli
+
+    Parameters
+    ----------
+    file_name: The supersting input file (*.stg).
+    precision: default is set to 2. It is used to create the pseudo data used
+                for inversion.
+    save_file: boolean. To save the file, change the parameter to True to save
+                as .txt.
+
+    The output consist of the topography and the ABMN electrode position with the apparent
+    resistivity.
+    &#34;&#34;&#34;
+    if not os.path.isfile(file_name):
+        raise ValueError(&#34;{file_name} does not exist, make sure file is in the same directory&#34;)
+
+    processed_file = supersting_processing(file_name)
+    # extract the xyz positions of the array and stack them vertically
+    a_pos = processed_file[:, 2:5]
+    b_pos = processed_file[:, 5:8]
+    m_pos = processed_file[:, 8:11]
+    n_pos = processed_file[:, 11:14]
+
+    electrode_pos = np.vstack((a_pos, b_pos, m_pos, n_pos))
+
+    # rounds the floats in the array to the nearest integer tending to zero
+    pseudo_data = 100 ** precision
+    datafix = np.fix(electrode_pos * pseudo_data) / pseudo_data + 0.0
+
+    # gets the actual electrodes numbering of the ABMN(elect_arr) electrodes and
+    # create synthetic data.
+    dtype = np.dtype((np.void, datafix.dtype.itemsize * datafix.shape[1]))
+    byte = np.ascontiguousarray(datafix).view(dtype)
+    _, a_current = np.unique(byte, return_index=True)
+    _, b_current = np.unique(byte, return_inverse=True)
+
+    # get electrode configuration and obtain the forward and reverse index
+    org_pos = np.unique(byte).view(datafix.dtype).reshape(-1, datafix.shape[1])
+    _, rev_ind = a_current, b_current
+
+    # create an instance of the pybert DataContainerERT
+    data = pg.DataContainerERT()
+    for ipos in org_pos:
+        data.createSensor(ipos)
+
+    # Add more information from the supersting file
+    all_info = np.genfromtxt(file_name, delimiter=&#39;,&#39;, skip_header=3)
+
+    data.resize(len(all_info))
+    elect_arr = rev_ind.reshape(4, -1).T
+
+    for i, abmn in enumerate(elect_arr):
+        ind = [int(ii) for ii in abmn]
+        data.createFourPointData(i, *ind)  # ind[1], ind[0], ind[2], ind[3])
+
+    data.set(&#39;i&#39;, all_info[:, 6] * 1e-3)
+    data.set(&#39;u&#39;, all_info[:, 4] * data(&#39;i&#39;))  # U=R*I
+    data.set(&#39;err&#39;, all_info[:, 5] * 0.001)
+    data.set(&#39;rhoa&#39;, all_info[:, 7])
+    if all_info.shape[1] &gt; 30:
+        data.set(&#39;ip&#39;, all_info[:, 30] * 1000)  # M integrated in msec
+        for i in range(6):
+            data.set(&#39;ip&#39; + str(i + 1), all_info[:, 24 + i])
+
+    data.markValid(data(&#39;rhoa&#39;) &gt; 0)
+    data.checkDataValidity()
+    data.sortSensorsX()
+
+    # save the file in .dat format and can be visualized using notepad or any text application.
+    if save_file:
+        # The string format used is typical to how I am reading my file.
+        # If the data is present in the directory, change &#39;5:-4&#39; to &#39;:-4&#39;
+        pb.exportData(data, f&#39;{file_name[:-4]}.dat&#39;)
+
+    return data</code></pre>
 </details>
 </section>
 <section>
@@ -64,46 +180,183 @@ def res_data(csv_file, header=0):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="root_simulator.read_res_data.res_data"><code class="name flex">
-<span>def <span class="ident">res_data</span></span>(<span>csv_file, header=0)</span>
+<dt id="root_simulator.read_res_data.standardized_bert"><code class="name flex">
+<span>def <span class="ident">standardized_bert</span></span>(<span>file_name, precision=2, save_file=False)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Read in the csv file location.</p>
-<p>The csv_file should should contain the resistivity and the regional number or depth data,
-and returns a 2D array of the file to be used in BERT module.</p>
-<p>Dependency: csv_format, csv, numpy module
-Parameters:
-csv_file &ndash;location of the csv file ending with '.csv'.The regional number should be in the first column and resistivity values on the second.</p>
-<p>header &ndash; Replace 0 with 1 if file contain header</p>
-<p>For example, csv_file = '../res_data.csv' or 'res_data.csv' if file is in correct directory.</p></div>
+<div class="desc"><p>Standardized_bert function returns the required data needed for the (PyGIMLi) BERT model.</p>
+<p>Dependencies: numpy, pybert, pygimli</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt>file_name: The supersting input file (*.stg).</dt>
+<dt><strong><code>precision</code></strong> :&ensp;<code>default is set to 2. It is used to create the pseudo data used</code></dt>
+<dd>for inversion.</dd>
+<dt><strong><code>save_file</code></strong> :&ensp;<code>boolean. To save the file, change the parameter to True to save</code></dt>
+<dd>as .txt.</dd>
+</dl>
+<p>The output consist of the topography and the ABMN electrode position with the apparent
+resistivity.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def res_data(csv_file, header=0):
-        &#34;&#34;&#34;Read in the csv file location.
+<pre><code class="python">def standardized_bert(file_name, precision=2, save_file=False):
+    &#34;&#34;&#34;Standardized_bert function returns the required data needed for the (PyGIMLi) BERT model.
 
-        The csv_file should should contain the resistivity and the regional number or depth data, 
-        and returns a 2D array of the file to be used in BERT module.
+    Dependencies: numpy, pybert, pygimli
 
-        Dependency: csv_format, csv, numpy module
-        Parameters:
-        csv_file --location of the csv file ending with &#39;.csv&#39;.The regional number should be in the first column and resistivity values on the second.
+    Parameters
+    ----------
+    file_name: The supersting input file (*.stg).
+    precision: default is set to 2. It is used to create the pseudo data used
+                for inversion.
+    save_file: boolean. To save the file, change the parameter to True to save
+                as .txt.
 
-        header -- Replace 0 with 1 if file contain header
+    The output consist of the topography and the ABMN electrode position with the apparent
+    resistivity.
+    &#34;&#34;&#34;
+    if not os.path.isfile(file_name):
+        raise ValueError(&#34;{file_name} does not exist, make sure file is in the same directory&#34;)
 
+    processed_file = supersting_processing(file_name)
+    # extract the xyz positions of the array and stack them vertically
+    a_pos = processed_file[:, 2:5]
+    b_pos = processed_file[:, 5:8]
+    m_pos = processed_file[:, 8:11]
+    n_pos = processed_file[:, 11:14]
 
-        For example, csv_file = &#39;../res_data.csv&#39; or &#39;res_data.csv&#39; if file is in correct directory.
-        &#34;&#34;&#34;
-        res_data = csv.reader(open(csvfile, &#39;r&#39;), delimiter=&#39;,&#39;, quotechar=&#39;&#34;&#39;)
-        rows = [row for row in res_data]
+    electrode_pos = np.vstack((a_pos, b_pos, m_pos, n_pos))
 
-        rhomap = np.ones([len(rows)-header, 2])
-        for line in rows:
-                rhomap[line-header, 0] = rows[line][0]
-                rhomap[line-header, 1] = rows[line][1]
+    # rounds the floats in the array to the nearest integer tending to zero
+    pseudo_data = 100 ** precision
+    datafix = np.fix(electrode_pos * pseudo_data) / pseudo_data + 0.0
 
-        return rhomap</code></pre>
+    # gets the actual electrodes numbering of the ABMN(elect_arr) electrodes and
+    # create synthetic data.
+    dtype = np.dtype((np.void, datafix.dtype.itemsize * datafix.shape[1]))
+    byte = np.ascontiguousarray(datafix).view(dtype)
+    _, a_current = np.unique(byte, return_index=True)
+    _, b_current = np.unique(byte, return_inverse=True)
+
+    # get electrode configuration and obtain the forward and reverse index
+    org_pos = np.unique(byte).view(datafix.dtype).reshape(-1, datafix.shape[1])
+    _, rev_ind = a_current, b_current
+
+    # create an instance of the pybert DataContainerERT
+    data = pg.DataContainerERT()
+    for ipos in org_pos:
+        data.createSensor(ipos)
+
+    # Add more information from the supersting file
+    all_info = np.genfromtxt(file_name, delimiter=&#39;,&#39;, skip_header=3)
+
+    data.resize(len(all_info))
+    elect_arr = rev_ind.reshape(4, -1).T
+
+    for i, abmn in enumerate(elect_arr):
+        ind = [int(ii) for ii in abmn]
+        data.createFourPointData(i, *ind)  # ind[1], ind[0], ind[2], ind[3])
+
+    data.set(&#39;i&#39;, all_info[:, 6] * 1e-3)
+    data.set(&#39;u&#39;, all_info[:, 4] * data(&#39;i&#39;))  # U=R*I
+    data.set(&#39;err&#39;, all_info[:, 5] * 0.001)
+    data.set(&#39;rhoa&#39;, all_info[:, 7])
+    if all_info.shape[1] &gt; 30:
+        data.set(&#39;ip&#39;, all_info[:, 30] * 1000)  # M integrated in msec
+        for i in range(6):
+            data.set(&#39;ip&#39; + str(i + 1), all_info[:, 24 + i])
+
+    data.markValid(data(&#39;rhoa&#39;) &gt; 0)
+    data.checkDataValidity()
+    data.sortSensorsX()
+
+    # save the file in .dat format and can be visualized using notepad or any text application.
+    if save_file:
+        # The string format used is typical to how I am reading my file.
+        # If the data is present in the directory, change &#39;5:-4&#39; to &#39;:-4&#39;
+        pb.exportData(data, f&#39;{file_name[:-4]}.dat&#39;)
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="root_simulator.read_res_data.supersting_processing"><code class="name flex">
+<span>def <span class="ident">supersting_processing</span></span>(<span>file, col=(-4, -1), row=1, save_file=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Read in the supersting file and extract the measured res. values and electrodes arrangement.</p>
+<p>The Supersting file has a standard output format. The total number of records measured is
+situated at the end of the second row.</p>
+<p>Dependence: os, numpy</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt>file: The name of the file should be in the current directory or the path should be added.</dt>
+<dt>row: The row shouldn't change except in case of special cases.</dt>
+<dt><strong><code>col</code></strong> :&ensp;<code>The default used is hundreds</code> of <code>points. if the record is not up to hundred,</code></dt>
+<dd>change to (-3, -1), if total points are up to a thousand, change to (-5:-1).</dd>
+</dl>
+<p>save_file: boolean. To save the file, change the parameter to True to save as .txt.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def supersting_processing(file, col=(-4, -1), row=1, save_file=False):
+    &#34;&#34;&#34;Read in the supersting file and extract the measured res. values and electrodes arrangement.
+
+    The Supersting file has a standard output format. The total number of records measured is
+    situated at the end of the second row.
+
+    Dependence: os, numpy
+    
+    Parameters
+    ----------
+    file: The name of the file should be in the current directory or the path should be added.
+    row: The row shouldn&#39;t change except in case of special cases.
+    col: The default used is hundreds of points. if the record is not up to hundred,
+        change to (-3, -1), if total points are up to a thousand, change to (-5:-1).
+    save_file: boolean. To save the file, change the parameter to True to save as .txt.
+    &#34;&#34;&#34;
+    if not os.path.isfile(file):
+        raise ValueError(f&#34;{file} does not exist, make sure file is in the same directory&#34;)
+
+    with open(file, &#39;r&#39;, encoding=&#39;utf-8&#39;) as fil:
+        supersting_file = fil.readlines()
+
+    # Get the number of records automatically
+    for char in range(5, 1, -1):
+        last_line = supersting_file[1][-char:-1]  # The number of records may not exceed 10,000s
+        if isinstance(int(last_line), int):
+            check_col = int(last_line)
+            break
+
+    if type(int(supersting_file[row][col[0]:col[1]])) not in [int]:
+        raise ValueError(&#39;Please make sure you enter the correct col position&#39;)
+
+    record = int(supersting_file[row][col[0]:col[1]])
+
+    # overrides if the user enters a wrong record position that might break the code
+    if check_col &gt; record:
+        record = check_col
+
+    # remove the header
+    supersting = supersting_file[3:]
+
+    # The position of the resistance, resistivity and the ABMN (xyz for each):
+    relevant_col = [4, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+    # create the numpy array size to accommodate the resistance, resistivity and ABMN files
+    data = np.ones((record, len(relevant_col)))
+
+    # extract each line of the supersting file and separate each information. filling the array
+    for i, _ in enumerate(supersting):
+        line = supersting[i].replace(&#39;,&#39;, &#34; &#34;).split()
+        for j, _ in enumerate(relevant_col):
+            data[i][j] = line[relevant_col[j]]
+
+    if save_file:
+        np.savetxt(f&#34;{file[:-4]}_res.dat&#34;, data, header=&#39;R rhoa A(xyz) B(xyz) M(xyz) N(xyz)&#39;)
+
+    return data</code></pre>
 </details>
 </dd>
 </dl>
@@ -124,7 +377,8 @@ csv_file &ndash;location of the csv file ending with '.csv'.The regional number 
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="root_simulator.read_res_data.res_data" href="#root_simulator.read_res_data.res_data">res_data</a></code></li>
+<li><code><a title="root_simulator.read_res_data.standardized_bert" href="#root_simulator.read_res_data.standardized_bert">standardized_bert</a></code></li>
+<li><code><a title="root_simulator.read_res_data.supersting_processing" href="#root_simulator.read_res_data.supersting_processing">supersting_processing</a></code></li>
 </ul>
 </li>
 </ul>
