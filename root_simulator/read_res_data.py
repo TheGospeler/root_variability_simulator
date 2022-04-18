@@ -1,4 +1,4 @@
-"""importing dependency modules."""
+"""The read_res_data module transforms the supersting raw file into compatible data formats."""
 import os
 import numpy as np
 import pybert as pb
@@ -11,22 +11,21 @@ def supersting_processing(file, col=(-4, -1), row=1, save_file=False):
     The Supersting file has a standard output format. The total number of records measured is
     situated at the end of the second row.
 
-    The supersting_processing function returns the following in an array: resistance, apparent
-    resistivity, current electrodes(xyz), and potential electrodes(xyz), from the supersting file.
-
-    Depending on the information you need, you might just need to slightly adjust some parameters
-    to get what you need. See the SuperSting Manual for column positions of information needed.
-
     Dependence: os, numpy
-    Parameters: file- The name of the file should be in the current directory or the path should be
-    added.
-        row- The row shouldn't change except in case of special cases.
-        col- The default used is hundreds of points. if the record is not up to hundred,
-        change to [-3, -1], if total points are up to a thousand, change to [-5:-1].
-        save_file- boolean. To save the file, change the parameter to True to save as .txt.
+    
+    Parameters
+    ----------
+    file: The name of the file should be in the current directory or the path should be added.
+    row: The row shouldn't change except in case of special cases.
+    col: The default used is hundreds of points. if the record is not up to hundred,
+        change to (-3, -1), if total points are up to a thousand, change to (-5:-1).
+    save_file: boolean. To save the file, change the parameter to True to save as .txt.
     """
     if not os.path.isfile(file):
         raise ValueError(f"{file} does not exist, make sure file is in the same directory")
+    if file[-4:] != '.stg':
+        raise ValueError(f"{file} is not a supersting file. Input a supersting file(.stg)")
+
 
     with open(file, 'r', encoding='utf-8') as fil:
         supersting_file = fil.readlines()
@@ -63,19 +62,22 @@ def supersting_processing(file, col=(-4, -1), row=1, save_file=False):
             data[i][j] = line[relevant_col[j]]
 
     if save_file:
-        np.savetxt(f"{file[5:-4]}_res.dat", data, header='R rhoa A(xyz) B(xyz) M(xyz) N(xyz)')
+        np.savetxt(f"{file[:-4]}_res.dat", data, header='R rhoa A(xyz) B(xyz) M(xyz) N(xyz)')
 
     return data
 
 
 def standardized_bert(file_name, precision=2, save_file=False):
-    """Standardized_bert function returns the required data needed for the BERT model.
+    """Standardized_bert function returns the required data needed for the (PyGIMLi) BERT model.
 
     Dependencies: numpy, pybert, pygimli
-    Parameters: file_name- The supersting input file.
-                precision- default is set to 2. It is used to create the pseudo data used
+
+    Parameters
+    ----------
+    file_name: The supersting input file (*.stg).
+    precision: default is set to 2. It is used to create the pseudo data used
                 for inversion.
-                save_file- boolean. To save the file, change the parameter to True to save
+    save_file: boolean. To save the file, change the parameter to True to save
                 as .txt.
 
     The output consist of the topography and the ABMN electrode position with the apparent
@@ -140,6 +142,6 @@ def standardized_bert(file_name, precision=2, save_file=False):
     if save_file:
         # The string format used is typical to how I am reading my file.
         # If the data is present in the directory, change '5:-4' to ':-4'
-        pb.exportData(data, f'{file_name[5:-4]}.dat')
+        pb.exportData(data, f'{file_name[:-4]}.dat')
 
     return data

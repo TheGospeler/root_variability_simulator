@@ -1,4 +1,4 @@
-"""Import Dependency."""
+"""Sensitivity build module enhances the result of the subsurface by using the optimal array."""
 from copy import copy
 import numpy as np
 
@@ -13,18 +13,24 @@ class ElectrodeScheme():
     configuration.
 
     Dependable: numpy, read_res_data.
-    Parameter: data- The data should be the output from the standardized_bert function in the
-    read_res_data package.
+
+    Parameter
+    ----------
+    data: The data should be the output from the standardized_bert in the read_res_data package.
 
     Functions:
-    -----------
-    extract_electrode.
-    get_electrode_conf.
-    modify_electrode.
+    ---------
+    extract_electrode: extract the columns of the current and potential electrodes.
+    get_electrode_conf: Returns the name of the electrode configuration used for the Geo. survey.
+    modify_electrode: Computes and changes the inherent electrode configuration.
 
-    Attributes:
+    Attributes
+    ----------
     array_name: Displays the electrode configuration present in the input dataset.
-
+    compiled_data: List containing information electrode distance and electrode configuration.
+    data_without_electr: Contains the information in the .dat file without the electrode config.
+    electr_data: Contains the electrode configuration information exclusively.
+    modify_output: List containing the result of the modified output.
     """
 
     def __init__(self, data):
@@ -49,19 +55,21 @@ class ElectrodeScheme():
         The extract_electrode function helps isolate the electrode configuration from the .dat
         file and return a new file while still maintaining the bert structure of the input data.
 
-        Parameter:
-               save_file: Boolean. You can choose to save the file or perform other operation,
-               using the other functions before saving.
+        Parameters
+        ----------
+        save_file: Boolean. You can choose to save the file or perform other operation,
+        using the other functions before saving.
 
-        returns:
-               A list, structured in the similitude of the saved file.
+        return
+        ------
+        A list, structured in the similitude of the saved file.
 
         """
         with open(self.data, 'r', encoding='utf-8') as files:
             file = files.readlines()
 
         # compiled_data holds all the information in the extract_electrodes
-        # reinitializes at every instance to avoid compounded data
+        # reinitialize at every instance to avoid compounded data
         self.compiled_data = []
 
         sensor = int(file[0].split()[0])

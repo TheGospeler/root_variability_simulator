@@ -1,4 +1,4 @@
-"""Import dependent modules."""
+"""The root_simulator module is the computational engine of the root_simulator package."""
 
 import os
 from pygimli.physics import ert
@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pygimli as pg
 import pygimli.meshtools as mt
+import root_simulator.read_res_data as rrd
 
 
 class RootSimulator:
@@ -19,15 +20,13 @@ class RootSimulator:
     This package makes use of the python library for Geophysical modeling and Inversion (pyGIMLi).
 
     Dependable: numpy, matplotlib, pygimli.
+
     Functions
     ----------
-    create_geom- creates an arbitrary region of the subsurface with a specific feature.
-    forward_model - simulates the resistivity distribution within the created mesh.
-    inversion_2D - performs simulations and return the true resistivity model.
-    animate_simulation- visualizes the results of the different array configuration.
-
-    Usage:
-    from root_simulator import RootSimulator
+    create_geom: creates an arbitrary region of the subsurface with a specific feature.
+    forward_model: simulates the resistivity distribution within the created mesh.
+    inversion_2D: performs simulations and return the true resistivity model.
+    animate_simulation: visualizes the results of the different array configuration.
 
     """
 
@@ -116,8 +115,10 @@ class RootSimulator:
     def plot_rhomap(self, rhomap):
         """Visualize the resistivity distribution within the mesh.
 
-        parameter:
+        parameter
+        ---------
         rhomap: nested list consisting of the region and the associated resistivity value.
+
         example >> rhomap =[[1, 100], [2, 75], [4, 50], ...]
         The example above have four regions. This is dependent on the nature of the geometry,
         layer, and feature created.
@@ -236,9 +237,10 @@ class RootSimulator:
         data. The three models are the True model (which is the actual representation of the
         subsurface), the inversion using unstructured mesh, and the inversion with a regularized
         mesh.
+
         In Practice we may not truly identify the true model, but this is a good way to access
-        the model performance with the known structure or layers under consideration, using such
-        information to measure the performance with real data with unknown structures.
+        the model performance with the known structure or layers under consideration; with such
+        information, we can measure the performance of unknown structures with real data.
         """
         # initiate all of the models to enable saving their functions at in the figures folder
         print('Running True Model......')
@@ -259,3 +261,147 @@ class RootSimulator:
                 image = imageio.imread(f'figures/{filename}')
                 writer.append_data(image)
         return HTML(f'<img src="figures/res_mod_{self.__sch}.gif">')
+
+
+class RootSimulator2:
+    """Produce the Forward and Inverse model of the processed supersting file.
+
+    The RootSimulator2 class performs two major modeling to the processed data. The two main
+    functions are the forward_model and inverse_model that enables the simulations of the
+    surveyed subsurface using the resulting supersting.stg file.
+
+    The raw file is processed using the standardized_bert function in the read_res_data module to
+    produce the .dat file for the inversion simulation, while the data for the forward model is
+    obtained via the supersting_processing to produce the *_res.dat
+
+    This package makes use of the python library for Geophysical modeling and Inversion (pyGIMLi).
+
+    Dependable: read_res_data, numpy, matplotlib, pygimli.
+
+    Parameter
+    ----------
+    data - raw supersting file *.stg
+
+    Functions
+    ----------
+    forward_model: Returns the model of the apparent resistivity across the profile.
+    inverse_model: Returns the true resistivity of the subsurface under investigation.
+    """
+
+    def __init__(self, data):
+        """Input data should be in the .dat format.
+
+        The .dat file can be obtained using the standardized_bert function in the read_res_data
+        module."""
+        self.data = data
+        self.mesh = "Run generate_mesh"
+        self.__data_tr = ''  # stores the read in data
+        self.__sim = ''
+        self.__tr_res = ''
+
+    def __activate_data(self):
+        """Activate variables for general use."""
+        # Ensure the write data file is used for the class
+        if not os.path.isfile(self.data):
+            raise ValueError(f"{self.data} does not exist, make sure file is in the same directory")
+        if self.data[-4:] != '.stg':
+            raise ValueError(f"{self.data} is not a supersting file. Input a supersting file(.stg)")
+
+        # Updates the global variable to be used across boards
+        self.__data_tr = rrd.standardized_bert(self.data)
+        self.__data_tr["err"] = ert.estimateError(self.__data_tr, relativeError=0.02)
+        return self.__data_tr
+
+    def generate_mesh(self, boundary=200, depth=200, quality=34.5):
+        """Generate the mesh for the inversion simulations.
+
+        Parameters
+        ----------
+        boundary: The extent of allowance of current flow during the inversion calculations
+                  (Margin for parameter domain in absolute sensor distances).
+        depth: The depth we want to investigate (The Maximum depth for parametric domain).
+        quality: Number of notes. High value creates more refined nodes. 34.5 is the maximum
+        """
+        # activate the data
+        self.__activate_data()
+        self.mesh = mt.createParaMesh(self.__data_tr.sensorPositions(), paraDX=0.5, paraDepth=200,
+                                      paraBoundary=boundary, boundary=depth, quality=quality)
+        return pg.show(self.mesh, markers=True)
+
+    def forward_model(self):
+        """Plots the apparent resistivity based on the x-position and Depth of Investigation.
+
+        Visualizing the subsurface to filter outliers are a necessity to obtaining an optimal
+        inversion results. Hence, the forward_model helps visualize the data and recognize the
+        general distribution of the resistivity of the subsurface.
+        """
+        file = rrd.supersting_processing(self.data)
+        # Get the midpoint with the resistivity value and plot estimation
+        data = file[file[:, 1] > 0] # scale data to remove negative resistivity (anomalous data)
+
+        # create dictionary to store position and depth of each electrode configuration
+        data_bank = {}
+
+        # Get the rows containing Wenner array based on the configuration arrangement
+        wen_arr = data[data[:, 5] > data[:, 2]]
+
+        # midpoint of the mn electrode >> (n-m/2) + m for wenner array
+        # the addition of m is to maintain the exact location of the midpoint.
+        x_pos_wa = ((wen_arr[:, 11] - wen_arr[:, 8]) / 2) + wen_arr[:, 8]
+        depth_wa = 0.2 * (wen_arr[:, 5] - wen_arr[:, 2])  # 0.2*AB
+
+        # update dictionary
+        data_bank['Wenner Array'] = [x_pos_wa, depth_wa, wen_arr]
+
+        # Get the rows containing dipole-dipole based on the configuration arrangement
+        dip_dip = data[data[:, 5] < data[:, 2]]
+
+        x_pos_dd = ((dip_dip[:, 5] - dip_dip[:, 8]) / 2) + dip_dip[:, 8]  # dip_dip ~ BA
+        depth_dd = abs(0.2 * (dip_dip[:, 2] - dip_dip[:, 11]))  # 0.2*BN
+        # update dictionary
+        data_bank['Dipole-Dipole'] = [x_pos_dd, depth_dd, dip_dip]
+
+        # Plot the two electrode configuration models
+        for arr_name, values in data_bank.items():
+            fig, axis = plt.subplots(figsize=(10, 7))
+            info = axis.scatter(values[0], values[1], s=75, c=values[2][:, 1])
+            axis.set_xlabel('Distance (m)')
+            axis.xaxis.tick_top()
+            axis.xaxis.set_label_position('top')
+            axis.set_ylabel('Depth (m)')
+            axis.invert_yaxis()  # Transforms the data to start from depth 0 - 25 meters
+            axis.set_title(arr_name, fontweight='bold')
+            fig.colorbar(info, orientation='horizontal', label='Res (Ωm)')
+
+    def inverse_simulation(self):
+        """Inversion Modeling of the Resistivity Data."""
+        print("Creating regions....")
+        simulate = ert.ERTModelling(sr=False)
+        simulate.setMesh(self.mesh)
+        simulate.data = self.__activate_data()
+        simulate.setRegionProperties(1, background=True)
+        # reassigning global variable
+        self.__sim = simulate
+
+        print("Starting Inversions ...")
+        trans_log = pg.trans.TransLog()
+        calc_inversion = pg.Inversion(fop=simulate, verbose=True)
+        calc_inversion.transData = trans_log
+        calc_inversion.transModel = trans_log
+
+        true_resistivity = calc_inversion.run(self.__data_tr['rhoa'], self.__data_tr['err'], lam=20)
+        self.__tr_res = true_resistivity
+
+        return pg.show(simulate.paraDomain, true_resistivity, colorBar=True, cMap="Spectral_r",
+                       cMin=8, cMax=1500, label=pg.unit('res'))
+
+    def plot_inverse(self, min_res=8, max_res=1500):
+        """print and edit the inverse_simulation Image.
+
+        parameters
+        ---------
+        min_res: The lowest resistivity values based on the simulation
+        max_res: The highest resistivity values based on the simulation
+        """
+        return pg.show(self.__sim.paraDomain, self.__tr_res, colorBar=True, cMap="Spectral_r",
+                       cMin=min_res, cMax=max_res, label=pg.unit('res'))
