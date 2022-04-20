@@ -10,6 +10,7 @@ The main package (root_simulator) contains three modules namely:
 # GETTING STARTED!
 ##### Create an environment for the root_simulator software.
 The software dependency and requirements has been exported to the root_simulator.yml found in the parent directory (root_variability_simulator), and can be installed and activated using the following command lines
+
 1. 
 for linux or Mac users:
 `conda env create -f ./<location>/root_variability_simulator/root_simulator.yml`
