@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pygimli as pg
 import pygimli.meshtools as mt
-import root_simulator.read_res_data as rrd
+import read_res_data as rrd
 
 
 class RootSimulator:
