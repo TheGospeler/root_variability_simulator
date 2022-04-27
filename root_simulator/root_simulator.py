@@ -62,7 +62,25 @@ class RootSimulator:
                               feature=[(-10, -1), (17, -8), (5,-1)])
 
         """
-        # Check for errors in input parameter.
+        # Check for errors in input parameters.
+        
+        # Check if the feature consists of x and y points
+        for ind, _ in enumerate(feature):
+            if len(feature[ind]) != 2:
+                raise ValueError("The Individual points in feature must contain (x, y)")
+
+        maxx, minx = x_ext  # Gets the overall lateral extent of the layer
+        miny, maxy = layer  # Gets the depth extent
+
+        for xx, yy in feature:
+            if yy > miny or yy < maxy:
+                # checks depth correctness
+                raise ValueError("The feature points must be within the layer's depth")
+	
+            if xx > maxx - 20 or xx < minx + 20:
+                raise ValueError(f"{xx} is too close to the boundary points.")
+                print("To avoid issues, the lateral extent should be atleast 20 meters between \
+                features to each point")
 
         # reassign the global y_ext
         self.__layer = layer
@@ -301,7 +319,7 @@ class RootSimulator2:
 
     def __activate_data(self):
         """Activate variables for general use."""
-        # Ensure the write data file is used for the class
+        # Ensure the right data file is used for the class
         if not os.path.isfile(self.data):
             raise ValueError(f"{self.data} does not exist, make sure file is in the same directory")
         if self.data[-4:] != '.stg':

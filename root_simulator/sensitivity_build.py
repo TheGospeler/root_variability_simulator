@@ -1,5 +1,6 @@
 """Sensitivity build module enhances the result of the subsurface by using the optimal array."""
 from copy import copy
+import os
 import numpy as np
 
 
@@ -65,6 +66,12 @@ class ElectrodeScheme():
         A list, structured in the similitude of the saved file.
 
         """
+        if not os.path.isfile(self.data):
+            raise ValueError(f"{self.data} does not exist, make sure file is in the same directory")
+
+        if self.data[-4:] not in ['.dat', '.shm']:
+            raise ValueError(f"{self.data} is not surported. Input the processed supersting file(.dat)")
+        
         with open(self.data, 'r', encoding='utf-8') as files:
             file = files.readlines()
 
