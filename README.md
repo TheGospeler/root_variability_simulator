@@ -1,4 +1,5 @@
-# root_variability_simulator
+# root_variability_simulator 
+![res_mod_dd](https://user-images.githubusercontent.com/97548163/202792254-3c4f5fd4-eaed-417f-b6a0-a649a01515e3.gif)
 
 The Root variability Simulator seeks to visualize and represent the root spatial variation of trees in the soil using mainly resistivity values obtained from the Electrical Resistivity Geophysical Survey.
 
